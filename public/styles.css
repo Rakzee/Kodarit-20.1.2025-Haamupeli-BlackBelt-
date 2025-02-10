@@ -1,0 +1,44 @@
+/* perustyyli */
+body {
+
+    font-family: "Roboto", Arial, sans-serif;
+    display: flex
+    justify-content; center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    background-color: #373434
+}
+
+/* Intro-screen */
+#intro-screen {
+    background-image: url("images/background.png");
+    background-repeat: repeat-y;
+    background-size: 900px auto;
+    background-position: center;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    box-sizing: border-box;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+h2, h1, p {
+    text-align: center;
+    width: 100%;
+    position: relative;
+    margin: 20px 0;
+}
+
+h3 {
+    margin: 10px 10px;
+}
