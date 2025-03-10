@@ -67,8 +67,8 @@ button {
     background-image: url('images/background.png');
     background-size: cover;
     background-position: center;
-    width: 50vw fit-content;
-    height: 50vw fit-content;
+    width: fit-content;
+    height: fit-content;
     margin: 10px auto;
     border: 2px solid #333;
     padding: 0px;
