@@ -1,21 +1,22 @@
-let BOARD_SIZE = 20 //Pelikentän koko
-const cellSize = calculateCellSize(); // Lasketaan ruudun koko responsiivisesti
-let board; //Kenttä tallennetaan tähän
-let player; //muuttuja pelaajalle
+let BOARD_SIZE = 20 // pelikentän koko
+const cellSize = calculateCellSize(); // ruudun responsiivisen koon laskenta
+let board; // kentän tallennuskohde
+let player; // muuttuja pelaajalle
+let ghosts = []; // ghost-olioiden lista
 
 
-// Haetaan nappi ja lisätään tapahtumankuuntelija
+// napin haku ja tapahtumakuuntelijan lisäys
 document.getElementById('new-game-btn').addEventListener('click', startGame);
 
 
-// Tapahtumankuuntelija, joka reagoi näppäimistön painalluksiin
+// näppäimistön painalluksiin reagoivan tapahtumakuuntelijan lisäys
 document.addEventListener('keydown', (event) => {
 
 
     switch (event.key){
 
 
-        // Tarkistetaan, mikä näppäin on painettu
+        // painetun nappulan tarkistus
         case 'ArrowUp':
             player.move(0, -1); // Liikuta pelaajaa yksi askel ylöspäin
             break;
@@ -100,10 +101,17 @@ function generateRandomBoard(){
     }
     generateObstacles(newBoard);
 
+    for (let i = 0; i < 5; i++){ // 5 haamun luonti
+        const [ghostX, ghostY] = randomEmptyPosition(newBoard) // satunnaisen tyhjän paikan haku kentältä
+        setCell(newBoard, ghostX, ghostY, 'H'); // haamun "h" asettaminen pelikentän matriisiin
+        ghosts.push(new Ghost(ghostX, ghostY)); // uuden ghost-olion lisäys ja sen listaan lisäys
+    }
 
-    const [playerX, playerY] = randomEmptyPosition(newBoard); // haetaan satunnainen tyhjä paikka
-    setCell(newBoard, playerX, playerY, 'P'); // Asetetaan pelaaja tähän kohtaan
-    // Päivitetään pelaajan x- ja y-koordinaatit vastaamaan uutta sijaintia
+
+    const [playerX, playerY] = randomEmptyPosition(newBoard); // satunnaisen tyhjän paikan haku kentältä
+    setCell(newBoard, playerX, playerY, 'P'); // pelaajan asettaminen tiettyyn kohtaan
+
+    // pelaajan x-y-koordinaattien päivitys vastaamaan uuttasijaintia
     player.x = playerX;
     player.y = playerY;
        
@@ -132,8 +140,10 @@ function drawBoard(board) {
 
             if (getCell(board, x, y) === 'W') {
                 cell.classList.add('wall');
-            } else if (getCell(board, x, y) === 'P'){ // Pelaaja lisätään ruudukkoon
-                cell.classList.add('player'); //'P pelaaja
+            } else if (getCell(board, x, y) === 'P'){ // pelaajan lisäys ruudukkoon
+                cell.classList.add('player'); // 'p' = pelaaja
+            } else if (getCell(board, x, y) === 'H'){ // jos ruudussa on 'H' = haamu
+                cell.classList.add('hornmonster'); // hahmon CSS-luokan lisäys, joka näyttää sen kuvana
             }
             gameBoard.appendChild(cell);
         }
@@ -237,4 +247,18 @@ class Player {
         // Piirretään pelikenttä uudelleen, jotta pelaajan liike näkyy visuaalisesti
         drawBoard(board);
     }
+}
+
+// kummitusten luokka
+class Ghost {
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+    }
+}
+
+function shootAt(x, y) {
+
+    setCell(board, x, y, 'B');
+    drawBoard(board);
 }
