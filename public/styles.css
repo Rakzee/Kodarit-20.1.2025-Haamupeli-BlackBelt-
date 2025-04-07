@@ -113,5 +113,15 @@ button {
     border-radius: 50%; /* ammuksen ympyrän muotoon muokkaus */
     width: 100%; /* leveys */
     height: 100%; /* korkeus */
-    animation: fadeOut 0.5s ease-out;
+    animation: fadeOut 0.5s ease-out; /* ammus haalistuu 0.5 sekunnin aikana */
+}
+
+/* fadeOut-animaation määrittely */
+@keyframes fadeOut {
+    0% { /* animaatio näkyy täysin alussa */
+        opacity 1; /* täysi näkyvyys */
+    }
+    100% { /* täysin läpinäkyvä lopussa */
+        opacity 0; /* ammus "häviää" ruudulta visuaalisesti */
+    } 
 }
