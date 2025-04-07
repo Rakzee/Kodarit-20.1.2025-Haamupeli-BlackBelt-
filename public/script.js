@@ -36,6 +36,21 @@ document.addEventListener('keydown', (event) => {
             player.move(1, 0); // Liikuta pelaajaa yksi askel oikealle
             break;
 
+        case 'w':
+            shootAt(player.x, player.y - 1); // ylöspäin ampuminen
+            break;
+
+        case 's':
+            shootAt(player.x, player.y + 1); // alaspäin ampuminen
+            break;
+
+        case 'a':
+            shootAt(player.x - 1, player.y); // vasemmalle ampuminen
+            break;
+
+        case 'd':
+            shootAt(player.x + 1, player.y); // oikealle ampuminen
+            break;
 
     }
     event.preventDefault(); // Estetään selaimen oletustoiminnot, kuten sivun vieritys
@@ -144,7 +159,11 @@ function drawBoard(board) {
                 cell.classList.add('player'); // 'p' = pelaaja
             } else if (getCell(board, x, y) === 'H'){ // jos ruudussa on 'H' = haamu
                 cell.classList.add('hornmonster'); // hahmon CSS-luokan lisäys, joka näyttää sen kuvana
-            }
+            } else if (getCell(board, x, y) === 'B' ){
+                cell.classList.add('bullet'); // B = ammus
+                setTimeout(()=> {
+                    setCell(board, x, y, ' ')
+                }, 500); // ammus katoaa 0.5 sekunnin jälkeen
             gameBoard.appendChild(cell);
         }
     }
@@ -259,6 +278,36 @@ class Ghost {
 
 function shootAt(x, y) {
 
+    // ammuksen seinään osumis tarkistus
+    if (getCell(board, x, y) === 'W'){
+        // jos ruudussa on seinä, ei tee mitään
+        return;
+    }
+
+    // haamun ammuntakohderuudun selvitys
+    const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y);
+
+    if (ghostIndex != -1) {
+        // haamun poisto haamulistasta, jos sellainen löytyy
+        ghosts.splice(ghostIndex, 1); // poistaa yhden haamun listasta
+        updateScoreBoard(50); // pisteiden lisäys (50 pistettä osumasta)
+    }
+
+    // ammuksen 'b' asettaminen ruutuun, jotta se näkyy pelissä
     setCell(board, x, y, 'B');
+
+    // pelin uudelleen piirtäminen, jotta ammus näkyy
     drawBoard(board);
+
+    // tarkistaa, onko kaikki haamut tuhottu (seuraava taso jos on)
+    if (ghosts.length === 0){
+        // siirtyy seuraavalle tasolle, jos kaikki haamut on tuhottu
+        alert('kaikki tuhottu');
+    }
 }
+
+function moveGhosts(){
+    // kaikkien hahmojen sijainnin tallennus ennen niiden liikutusta
+const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y}));
+}
+    
