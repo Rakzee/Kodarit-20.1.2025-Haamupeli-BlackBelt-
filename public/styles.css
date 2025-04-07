@@ -106,3 +106,12 @@ button {
     background-image: url(images/hornmonster.png); /* kuvan asettaminen haamulle */
     background-size: cover; /* kuva kattaa koko ruudun */
 }
+
+/* ammusten ulkoasu */
+.bullet {
+    background-color: red; /*punainen ammus */
+    border-radius: 50%; /* ammuksen ympyrän muotoon muokkaus */
+    width: 100%; /* leveys */
+    height: 100%; /* korkeus */
+    animation: fadeOut 0.5s ease-out;
+}
