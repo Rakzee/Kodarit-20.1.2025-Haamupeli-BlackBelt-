@@ -115,8 +115,7 @@ button {
     border-radius: 50%; /*Pyöristetään ammus ympyrän muotoon */
     width: 100%; /*Leveys*/
     height: 100%; /*Korkeus*/
-    ani
-    mation: fadeOut 0.5s ease-out; /* Animaatio, jossa ammus haalistuu 0.5 sekunnin aikana */
+    animation: fadeOut 0.5s ease-out; /* Animaatio, jossa ammus haalistuu 0.5 sekunnin aikana */
 }
 /* Määritellään animaatio nimeltä fadeOut */
 @keyframes fadeOut {
