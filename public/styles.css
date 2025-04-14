@@ -98,11 +98,32 @@ button {
 
 
 .player {
-    background-image: url('images/player.png'); /* kuvan asettaminen pelaajalle */
-    background-size: cover; /* kuva kattaa koko ruudun */
+    background-image: url('images/player.png'); /* Asetetaan pelaajalle kuva */
+    background-size: cover; /*Kuva kattaa koko ruudun */
 }
 
+
 .hornmonster {
-    background-image: url(images/hornmonster.png); /* kuvan asettaminen haamulle */
-    background-size: cover; /* kuva kattaa koko ruudun */
+    background-image: url('images/hornmonster.png'); /*haamun kuva*/
+    background-size: cover; /* Skaalaa kuva siististi täyttämään ruutu */
+}
+
+
+/*Ammukset ulkoasu */
+.bullet {
+    background-color: red; /*Ammuksen väri on punainen*/
+    border-radius: 50%; /*Pyöristetään ammus ympyrän muotoon */
+    width: 100%; /*Leveys*/
+    height: 100%; /*Korkeus*/
+    ani
+    mation: fadeOut 0.5s ease-out; /* Animaatio, jossa ammus haalistuu 0.5 sekunnin aikana */
+}
+/* Määritellään animaatio nimeltä fadeOut */
+@keyframes fadeOut {
+    0% {            /* Alussa animaatio on täysin näkyvä */
+        opacity: 1; /* Täysi näkyvyys */
+    }
+    100% {          /* Lopussa animaatio on täysin läpinäkyvä */
+        opacity: 0; /* Ammus "häviää" ruudulta visuaalisesti */
+    }
 }

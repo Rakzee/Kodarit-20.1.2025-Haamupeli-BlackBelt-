@@ -1,22 +1,23 @@
-let BOARD_SIZE = 20 // pelikentän koko
-const cellSize = calculateCellSize(); // ruudun responsiivisen koon laskenta
-let board; // kentän tallennuskohde
-let player; // muuttuja pelaajalle
-let ghosts = []; // ghost-olioiden lista
+let BOARD_SIZE = 20 //Pelikentän koko
+const cellSize = calculateCellSize(); // Lasketaan ruudun koko responsiivisesti
+let board; //Kenttä tallennetaan tähän
+let player; //muuttuja pelaajalle
+let ghosts = []; // Lista, johon tallennetaan kaikki ghost-oliot
+let ghostSpeed = 1000; // Aloitusnopeus haamuille (millisekunteina)
 
 
-// napin haku ja tapahtumakuuntelijan lisäys
+// Haetaan nappi ja lisätään tapahtumankuuntelija
 document.getElementById('new-game-btn').addEventListener('click', startGame);
 
 
-// näppäimistön painalluksiin reagoivan tapahtumakuuntelijan lisäys
+// Tapahtumankuuntelija, joka reagoi näppäimistön painalluksiin
 document.addEventListener('keydown', (event) => {
 
 
     switch (event.key){
 
 
-        // painetun nappulan tarkistus
+        // Tarkistetaan, mikä näppäin on painettu
         case 'ArrowUp':
             player.move(0, -1); // Liikuta pelaajaa yksi askel ylöspäin
             break;
@@ -35,6 +36,24 @@ document.addEventListener('keydown', (event) => {
         case 'ArrowRight':
             player.move(1, 0); // Liikuta pelaajaa yksi askel oikealle
             break;
+
+
+        case 'w':
+            shootAt(player.x, player.y -1); // Ammutaan ylöspäin
+            break;
+       
+        case 's':
+            shootAt(player.x, player.y + 1); // Ammutaan alaspain
+            break;
+
+
+        case 'a':
+            shootAt(player.x - 1, player.y); // Ammutaan vasemmalle
+            break;
+
+
+        case 'd':
+            shootAt(player.x + 1, player.y); // Ammutaan oikealle
 
 
     }
@@ -77,6 +96,9 @@ function startGame(){
     board = generateRandomBoard(); //Luo pelikenttä ja piirrä se
 
 
+    setInterval(moveGhosts, ghostSpeed);
+
+
     drawBoard(board); // Piirretään pelikenttä HTML:n
 
 
@@ -101,17 +123,19 @@ function generateRandomBoard(){
     }
     generateObstacles(newBoard);
 
-    for (let i = 0; i < 5; i++){ // 5 haamun luonti
-        const [ghostX, ghostY] = randomEmptyPosition(newBoard) // satunnaisen tyhjän paikan haku kentältä
-        setCell(newBoard, ghostX, ghostY, 'H'); // haamun "h" asettaminen pelikentän matriisiin
-        ghosts.push(new Ghost(ghostX, ghostY)); // uuden ghost-olion lisäys ja sen listaan lisäys
+
+    for (let i = 0; i < 5; i++){ //Luodaan 5 haamua
+        const [ghostX, ghostY] = randomEmptyPosition(newBoard); // Haetaan satunnainen tyhjä paikka kentältä
+        setCell(newBoard, ghostX, ghostY, 'H'); // Asetetaan haamu 'H' pelikentän matriisiin
+        ghosts.push(new Ghost(ghostX, ghostY)); // Luodaan uusi Ghost-olio ja lisätään se ghost-listaan
     }
 
 
-    const [playerX, playerY] = randomEmptyPosition(newBoard); // satunnaisen tyhjän paikan haku kentältä
-    setCell(newBoard, playerX, playerY, 'P'); // pelaajan asettaminen tiettyyn kohtaan
 
-    // pelaajan x-y-koordinaattien päivitys vastaamaan uuttasijaintia
+
+    const [playerX, playerY] = randomEmptyPosition(newBoard); // haetaan satunnainen tyhjä paikka
+    setCell(newBoard, playerX, playerY, 'P'); // Asetetaan pelaaja tähän kohtaan
+    // Päivitetään pelaajan x- ja y-koordinaatit vastaamaan uutta sijaintia
     player.x = playerX;
     player.y = playerY;
        
@@ -140,10 +164,15 @@ function drawBoard(board) {
 
             if (getCell(board, x, y) === 'W') {
                 cell.classList.add('wall');
-            } else if (getCell(board, x, y) === 'P'){ // pelaajan lisäys ruudukkoon
-                cell.classList.add('player'); // 'p' = pelaaja
-            } else if (getCell(board, x, y) === 'H'){ // jos ruudussa on 'H' = haamu
-                cell.classList.add('hornmonster'); // hahmon CSS-luokan lisäys, joka näyttää sen kuvana
+            } else if (getCell(board, x, y) === 'P'){ // Pelaaja lisätään ruudukkoon
+                cell.classList.add('player'); //'P pelaaja
+            } else if (getCell(board, x, y) === 'H'){ //Jos ruudussa on 'H' eli haamu
+                cell.classList.add('hornmonster'); // Lisätään haamun CSS-luokka, joka näyttää sen kuvana
+            } else if (getCell(board, x, y) === 'B'){
+                cell.classList.add('bullet'); //B on ammus
+                setTimeout(() => {
+                    setCell(board, x, y, ' ')
+                }, 500); // Ammus katoaa 0.5 sekunnin jälkeen
             }
             gameBoard.appendChild(cell);
         }
@@ -211,7 +240,8 @@ function randomEmptyPosition(board) {
     if (getCell(board, x, y) === ' '){
         return [x, y]; // Jos ruutu on tyhjä (' '), palautetaan se
     } else {
-        randomEmptyPosition(board); // Jos ruutu ei ole tyhjä, haetaan uusi satunnainen paikka
+        //14.4 HUOM TÄHÄN return
+        return randomEmptyPosition(board); // Jos ruutu ei ole tyhjä, haetaan uusi satunnainen paikka
     }
 }
 
@@ -249,16 +279,100 @@ class Player {
     }
 }
 
-// kummitusten luokka
+
+// Kummitusten luokka
 class Ghost {
-    constructor(x, y){
+    constructor(x, y) {
         this.x = x;
         this.y = y;
     }
 }
 
+
 function shootAt(x, y) {
 
+
+    // Tarkistetaan, osuuko ammus seinään ennen ampumista
+    if (getCell(board, x, y) === 'W') {
+        //Jos ruudussa on seinä ('W'), ei tehdä mitään
+        return;
+    }
+
+
+    // Etsitään, onko haamu samassa ruudussa mihin ammutaan
+    const ghostIndex = ghosts.findIndex(ghost => ghost.x === x && ghost.y === y);
+
+
+    if (ghostIndex !== -1) {
+        //Jos haamu löytyy, poistetaan se haamujen listasta
+        ghosts.splice(ghostIndex, 1); // Poistaa yhden haamun listasta
+        updateScoreBoard(50); // Lisätään pisteitä (esim. 50 pistettä osumasta)
+    }
+    // Asetetaan ruutuun 'B' eli ammus, jotta se näkyy pelissä
     setCell(board, x, y, 'B');
+
+
+    // Piirretään peli uudelleen, jotta ammus näkyy
+    drawBoard(board);
+
+
+    // Tarkistetaan, onko kaikki haamut poistettu pelistä
+    if (ghosts.length === 0){
+        // Jos kaikki haamut on ammuttu, siirrytään seuraavalle tasolle
+        alert('kaikki ammuttu');
+    }
+}
+
+
+function moveGhosts() {
+    // Tallennetaan kaikkien haamujen nykyiset sijainnit ennen kuin niitä liikutetaan
+    const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y}));
+
+
+    // Käydään jokainen haamu yksitellen läpi
+    ghosts.forEach(ghost => {
+
+
+        // Mahdolliset suunnat joihin haamu voi yrittää liikkua(ylös, alas, vasen, oikea)
+        const possibleNewPositions = [
+            { x: ghost.x, y: ghost.y - 1 }, // Ylös
+            { x: ghost.x, y: ghost.y + 1 }, //Alas
+            { x: ghost.x - 1, y: ghost.y }, // Vasen
+            { x: ghost.x + 1, y:ghost.y } // Oikea
+        ];
+
+
+        // Poistetaan listalta suunnat, jotka menevät seinän tai kentän ulkopuolelle
+        const validNewPositions = possibleNewPositions.filter(newPosition =>
+            newPosition.x >= 0 && newPosition.x < BOARD_SIZE && //Ei mennä vasemmalta tai oikealta ulos kentästä
+            newPosition.y >= 0 && newPosition.y < BOARD_SIZE && // Ei mennä ylhäältä tai alhaalta ulos kentästä
+            board[newPosition.y][newPosition.x] === ' '         // Vain tyhjät ruudut kelpaavat
+        );
+
+
+        // Jos haamulle löytyi ainakin yksi tyhjä ruutu johon se voi mennä
+        if (validNewPositions.length > 0) {
+            // Valitaan satunnainen uusi ruutu listasta
+            const randomNewPosition = validNewPositions[Math.floor(Math.random() * validNewPositions.length)];
+
+
+            // Päivitetään haamun sijainti uuteen paikkaan
+            ghost.x = randomNewPosition.x;
+            ghost.y = randomNewPosition.y;
+        }
+
+
+        // Merkitään haamu uuteen paikkaan pelilaudalle (asetetaan 'H')
+        setCell(board, ghost.x, ghost.y, 'H');
+    });
+
+
+    // Kun kaikki haamut on siirretty, tyhjennetään vanhat haamujen paikat
+    oldGhosts.forEach(ghost => {
+        board[ghost.y][ghost.x] = ' '; // Korvataan vanha haamusolu tyhjällä
+    });
+
+
+    // Lopuksi piirretään uusi pelilauta näkyviin, jotta liike näkyy ruudulla
     drawBoard(board);
 }
