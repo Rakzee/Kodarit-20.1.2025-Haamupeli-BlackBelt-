@@ -375,4 +375,16 @@ function moveGhosts() {
 
     // Lopuksi piirretään uusi pelilauta näkyviin, jotta liike näkyy ruudulla
     drawBoard(board);
+
+    // tarkistaa, onko kaikki haamut tuhottu (seuraava taso jos on)
+    if (ghosts.length === 0){
+        // siirtyy seuraavalle tasolle, jos kaikki haamut on tuhottu
+        alert('kaikki tuhottu');
+    }
 }
+
+function moveGhosts(){
+    // kaikkien hahmojen sijainnin tallennus ennen niiden liikutusta
+const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y}));
+}
+    
