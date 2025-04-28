@@ -286,6 +286,40 @@ class Ghost {
         this.x = x;
         this.y = y;
     }
+    moveGhostTowardsPlayer(player, board, oldGhosts){ // Metodi joka liikuttaa haamua kohti pelaajaa
+        let dx = player.x - this.x; // Lasketaan x-suuntainen etäisyys pelaajaan
+        let dy = player.y - this.y; // Lasketaan y-suuntainen etäisyys pelaajaan
+
+
+        let moves = []; // Lista mahdollisista siirroista
+
+
+        if (Math.abs(dx) > Math.abs(dy)){
+            if (dx > 0) moves.push({ x: this.x + 1, y: this.y}); // Siirto oikealle
+            else moves.push({ x: this.x -1, y: this.y}); // Siirto vasemmalle
+            if (dy > 0) moves.push({ x: this.x, y: this.y + 1}); // Siirto alaspäin
+            else moves.push({ x: this.x, y: this.y - 1}); // Siirto ylöspäin
+        } else {
+            if (dy > 0) moves.push({ x: this.x, y: this.y + 1 }) // Siirto alaspäin
+            else moves.push({ x: this.x, y: this.y - 1}); // Siirto ylös
+            if (dx > 0) moves.push({ x: this.x + 1, y: this.y}); // Siirto oikealle
+            else moves.push({ x: this.x -1, y: this.y}); // Siirto vasemmalle
+        }
+
+
+        // Käydään läpi kaikki mahdolliset liikkeet
+        for (let move of moves) {
+            // Jos uusi ruutu on tyhjä tai siellä on pelaaja ja sinne ei ole jo menossa toinen haamu
+            if (
+                (board[move.y][move.x] === ' ' || board[move.y][move.x] === 'P') &&
+                !oldGhosts.some(h => h.x === move.x && h.y === move.y)
+            ) {
+                return move; // Palautetaan ensimmäinen sopiva liike
+            }
+        }
+        // Jos mikään liike ei onnistu, pysytään paikallaan
+        return { x: this.x, y: this.y };
+    }
 }
 
 
@@ -325,66 +359,41 @@ function shootAt(x, y) {
 
 
 function moveGhosts() {
-    // Tallennetaan kaikkien haamujen nykyiset sijainnit ennen kuin niitä liikutetaan
-    const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y}));
+    // Tallennetaan kaikkien haamujen nykyiset sijainnit (ennen siirtoa)
+    const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y }));
 
 
-    // Käydään jokainen haamu yksitellen läpi
+    // Käydään läpi jokainen haamu
     ghosts.forEach(ghost => {
+        // Lasketaan uusi sijainti, johon haamu haluaa liikkua
+        const newPosition = ghost.moveGhostTowardsPlayer(player, board, oldGhosts);
 
 
-        // Mahdolliset suunnat joihin haamu voi yrittää liikkua(ylös, alas, vasen, oikea)
-        const possibleNewPositions = [
-            { x: ghost.x, y: ghost.y - 1 }, // Ylös
-            { x: ghost.x, y: ghost.y + 1 }, //Alas
-            { x: ghost.x - 1, y: ghost.y }, // Vasen
-            { x: ghost.x + 1, y:ghost.y } // Oikea
-        ];
+        // Päivitetään haamun koordinaatit
+        ghost.x = newPosition.x;
+        ghost.y = newPosition.y;
 
 
-        // Poistetaan listalta suunnat, jotka menevät seinän tai kentän ulkopuolelle
-        const validNewPositions = possibleNewPositions.filter(newPosition =>
-            newPosition.x >= 0 && newPosition.x < BOARD_SIZE && //Ei mennä vasemmalta tai oikealta ulos kentästä
-            newPosition.y >= 0 && newPosition.y < BOARD_SIZE && // Ei mennä ylhäältä tai alhaalta ulos kentästä
-            board[newPosition.y][newPosition.x] === ' '         // Vain tyhjät ruudut kelpaavat
-        );
-
-
-        // Jos haamulle löytyi ainakin yksi tyhjä ruutu johon se voi mennä
-        if (validNewPositions.length > 0) {
-            // Valitaan satunnainen uusi ruutu listasta
-            const randomNewPosition = validNewPositions[Math.floor(Math.random() * validNewPositions.length)];
-
-
-            // Päivitetään haamun sijainti uuteen paikkaan
-            ghost.x = randomNewPosition.x;
-            ghost.y = randomNewPosition.y;
-        }
-
-
-        // Merkitään haamu uuteen paikkaan pelilaudalle (asetetaan 'H')
+        // Asetetaan uusi sijainti laudalle
         setCell(board, ghost.x, ghost.y, 'H');
+
+
+       
     });
 
 
-    // Kun kaikki haamut on siirretty, tyhjennetään vanhat haamujen paikat
+    // Tyhjennetään vanhat haamujen paikat laudalta (jotta niistä ei jää haamuja näkyviin)
     oldGhosts.forEach(ghost => {
-        board[ghost.y][ghost.x] = ' '; // Korvataan vanha haamusolu tyhjällä
+        board[ghost.y][ghost.x] = ' ';
     });
 
 
-    // Lopuksi piirretään uusi pelilauta näkyviin, jotta liike näkyy ruudulla
+    // Päivitetään uudet sijainnit laudalle (uudelleenvarmistus)
+    ghosts.forEach(ghost => {
+        board[ghost.y][ghost.x] = 'H';
+    });
+
+
+    // Piirretään kenttä uudestaan näytölle
     drawBoard(board);
-
-    // tarkistaa, onko kaikki haamut tuhottu (seuraava taso jos on)
-    if (ghosts.length === 0){
-        // siirtyy seuraavalle tasolle, jos kaikki haamut on tuhottu
-        alert('kaikki tuhottu');
-    }
 }
-
-function moveGhosts(){
-    // kaikkien hahmojen sijainnin tallennus ennen niiden liikutusta
-const oldGhosts = ghosts.map(ghost => ({ x: ghost.x, y: ghost.y}));
-}
-    
