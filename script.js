@@ -393,7 +393,7 @@ function shootAt(x, y) {
     // Tarkistetaan, onko kaikki haamut poistettu pelistä
     if (ghosts.length === 0){
         // Jos kaikki haamut on ammuttu, siirrytään seuraavalle tasolle
-        alert('kaikki ammuttu'); //Tämä pois
+        startNextLevel();
     }
 }
 
@@ -498,3 +498,4 @@ function startNextLevel() {
         ghostInterval = setInterval(moveGhosts, ghostSpeed);
     }, 1000); // 1000 ms = 1 sekunti
 }
+
